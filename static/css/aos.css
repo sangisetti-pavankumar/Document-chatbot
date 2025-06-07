@@ -1,0 +1,30 @@
+[data-aos] {
+    opacity: 0;
+    transition: opacity 1s, transform 1s;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-aos="fade-right"] {
+    transform: translateX(-30px);
+}
+
+[data-aos="fade-left"] {
+    transform: translateX(30px);
+}
+
+[data-aos="fade-up"] {
+    transform: translateY(30px);
+}
+
+[data-aos="fade-down"] {
+    transform: translateY(-30px);
+}
+
+[data-aos="zoom-in"] {
+    transform: scale(0.9);
+}
+
+.aos-animate {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+}

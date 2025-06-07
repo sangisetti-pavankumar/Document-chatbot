@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% block title %}Document Chatbot - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        position: relative;
+        overflow: hidden;
+        padding: 0;
+        margin-bottom: 80px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    
+    .hero-content {
+        padding: 80px 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-shape {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.1);
+        clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+        z-index: 1;
+    }
+    
+    .hero-circle {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        z-index: 1;
+    }
+    
+    .hero-circle-1 {
+        top: -150px;
+        left: -150px;
+    }
+    
+    .hero-circle-2 {
+        bottom: -100px;
+        right: 10%;
+    }
+    
+    .hero-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 2;
+        transform: perspective(1000px) rotateY(-10deg);
+        transition: transform 0.5s;
+    }
+    
+    .hero-image:hover {
+        transform: perspective(1000px) rotateY(0deg);
+    }
+    
+    .feature-card {
+        height: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .section-heading {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+    
+    .section-heading:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(to right, #1e3a8a, #3b82f6);
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div id="starfield" class="starfield"></div>
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    <div id="particles-js" class="particles"></div>
+    
+    <div class="hero-content">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <div class="hero-text-container" data-aos="fade-right">
+                        <h1 class="display-4 fw-bold mb-4">Document Chatbot</h1>
+                        <p class="lead mb-4">
+                            Transform the way you interact with your documents. Our AI-powered chatbot helps you extract information, answer questions, and gain insights from your documents instantly.
+                        </p>
+                        <div class="d-grid gap-3 d-md-flex justify-content-md-start">
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('login') }}" class="btn btn-light btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </a>
+                                <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-user-plus me-2"></i>Register
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-image-container" data-aos="fade-left">
+                        <div class="model-container">
+                            <div class="model-screen">
+                                <div class="model-content">
+                                    <div class="model-header">
+                                        <div class="model-dots">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                    <div class="model-body">
+                                        <div class="model-chat">
+                                            <div class="model-message user">How can I extract key information from my financial report?</div>
+                                            <div class="model-message bot">I can help analyze your financial report. I'll identify key metrics, trends, and important data points for you.</div>
+                                            <div class="model-message user">What were our Q3 revenue figures?</div>
+                                            <div class="model-message bot">Based on your financial report, Q3 revenue was $2.4M, up 15% from the previous quarter.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container">
+    <div class="row text-center mb-5">
+        <div class="col-12" data-aos="fade-up">
+            <h2 class="display-5 fw-bold section-heading">Powerful Features</h2>
+            <p class="lead text-muted">Discover what our document chatbot can do for you</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-alt feature-icon"></i>
+                    <h3 class="h4 mt-3 mb-3">Document Analysis</h3>
+                    <p class="text-muted">Upload your documents and let our AI analyze them for you. Support for PDF, TXT, DOC, and DOCX files.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-robot feature-icon"></i>
+                    <h3 class="h4 mt-3 mb-3">AI-Powered Chat</h3>
+                    <p class="text-muted">Chat with our AI to extract information from your documents. Powered by Google's Gemma 3n 4B model.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-lock feature-icon"></i>
+                    <h3 class="h4 mt-3 mb-3">Secure Access</h3>
+                    <p class="text-muted">Your documents are secure with user-based access control. Admin and regular user roles available.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+            <div class="card feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-search feature-icon"></i>
+                    <h3 class="h4 mt-3 mb-3">Instant Answers</h3>
+                    <p class="text-muted">Get immediate answers to your questions without having to read through entire documents.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4" data-aos="fade-up" data-aos-delay="500">
+            <div class="card feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-history feature-icon"></i>
+                    <h3 class="h4 mt-3 mb-3">Chat History</h3>
+                    <p class="text-muted">All your conversations are saved so you can refer back to previous interactions anytime.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0 cta-card" data-aos="zoom-in" style="background: linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9)), url('https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1172&q=80'); background-size: cover; background-position: center;">
+                <div class="card-body p-5 text-center text-white">
+                    <h2 class="fw-bold mb-4">Ready to get started?</h2>
+                    <p class="lead mb-4">
+                        Join now and start chatting with your documents today.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg px-5">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5">
+                                <i class="fas fa-user-plus me-2"></i>Register Now
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

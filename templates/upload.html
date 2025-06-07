@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Document - Document Chatbot{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Document</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('upload_document') }}" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label for="document" class="form-label">Select Document</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="document" name="document" required>
+                            <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04">Browse</button>
+                        </div>
+                        <div class="form-text">
+                            Allowed file types: PDF, TXT, DOC, DOCX (Max size: 2MB)
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Upload Document
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Document Chatbot{% endblock %}
+
+{% block content %}
+<div class="profile-header text-center">
+    <div class="container">
+        <div class="profile-img-wrapper mb-3">
+            <img src="https://ui-avatars.com/api/?name={{ current_user.username }}&background=1e3a8a&color=fff&size=150" class="profile-img" alt="Profile Image">
+        </div>
+        <h2 class="mb-1">{{ current_user.username }}</h2>
+        <p class="mb-0">{{ current_user.email }}</p>
+        <p class="mt-3">
+            {% if current_user.is_admin %}
+            <span class="badge bg-danger px-3 py-2">Administrator</span>
+            {% else %}
+            <span class="badge bg-info px-3 py-2">Regular User</span>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Account Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" value="{{ current_user.username }}" readonly>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" value="{{ current_user.email }}" readonly>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                                <input type="text" class="form-control" value="{% if current_user.is_admin %}Administrator{% else %}Regular User{% endif %}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Activity Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center py-4">
+                            <div class="mb-4">
+                                <i class="fas fa-comments fa-3x text-primary mb-3"></i>
+                                <h3 class="h5">Chat Sessions</h3>
+                                <p class="text-muted">View your document chat history</p>
+                            </div>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat - {{ document[1] }} - Document Chatbot{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('view_document', document_id=document[0]) }}">{{ document[1] }}</a></li>
+                <li class="breadcrumb-item active">Chat</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #1e3a8a; color: white;">
+                <h4 class="mb-0">
+                    <i class="fas fa-comments me-2"></i>Chat with Document
+                </h4>
+                <div class="d-flex align-items-center">
+                    {% if document[1]|length > 20 %}
+                        <span class="badge bg-light text-dark me-2" title="{{ document[1] }}">{{ document[1][:20] }}...</span>
+                    {% else %}
+                        <span class="badge bg-light text-dark me-2">{{ document[1] }}</span>
+                    {% endif %}
+                    <a href="{{ url_for('view_document', document_id=document[0]) }}" class="btn btn-sm btn-light" title="View Document">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="chat-container" id="chatContainer">
+                    {% if chat_history %}
+                        {% for query, response, timestamp in chat_history %}
+                            <div class="chat-message user-message">
+                                <div class="message-content">{{ query }}</div>
+                                <div class="message-time small text-white-50">{{ timestamp }}</div>
+                            </div>
+                            <div class="chat-message bot-message">
+                                <div class="message-content">{{ response }}</div>
+                                <div class="message-time small text-muted">{{ timestamp }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-robot fa-3x mb-3"></i>
+                            <p class="lead">Start chatting with your document!</p>
+                            <p class="small text-muted">Ask questions about the content and get AI-powered answers.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="chat-input p-3 border-top">
+                    <form id="chatForm" class="d-flex">
+                        <input type="hidden" id="documentId" value="{{ document[0] }}">
+                        <input type="text" id="userQuery" class="form-control me-2" placeholder="Ask a question about this document..." required autocomplete="off">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chatForm');
+    const chatContainer = document.getElementById('chatContainer');
+    const userQueryInput = document.getElementById('userQuery');
+    const documentId = document.getElementById('documentId').value;
+    
+    // Scroll to bottom of chat
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Focus on input field
+    userQueryInput.focus();
+    
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const query = userQueryInput.value.trim();
+        if (!query) return;
+        
+        // Add user message to chat
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user-message';
+        userMessageDiv.innerHTML = `
+            <div class="message-content">${query}</div>
+            <div class="message-time small text-white-50">${getCurrentTime()}</div>
+        `;
+        chatContainer.appendChild(userMessageDiv);
+        
+        // Add loading message
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'chat-message bot-message';
+        loadingDiv.innerHTML = `
+            <div class="message-content">
+                <div class="d-flex align-items-center">
+                    <span class="me-2 thinking-dots">Thinking</span>
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(loadingDiv);
+        
+        // Clear input
+        userQueryInput.value = '';
+        
+        // Scroll to bottom
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        console.log("Sending chat request with document_id:", documentId);
+        
+        // Send request to API
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                document_id: documentId,
+                query: query
+            })
+        })
+        .then(response => {
+            console.log("Response status:", response.status);
+            if (!response.ok) {
+                return response.json().then(errData => {
+                    throw new Error(errData.error || `HTTP error! Status: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Response data:", data);
+            
+            // Remove loading message
+            chatContainer.removeChild(loadingDiv);
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            if (!data.response) {
+                throw new Error("No response received from server");
+            }
+            
+            // Format the response with markdown-like syntax
+            const formattedResponse = formatResponse(data.response);
+            
+            // Add bot response
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot-message';
+            botMessageDiv.innerHTML = `
+                <div class="message-content">${formattedResponse}</div>
+                <div class="message-time small text-muted">${data.timestamp || getCurrentTime()}</div>
+            `;
+            chatContainer.appendChild(botMessageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Focus on input field
+            userQueryInput.focus();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Remove loading message if it still exists
+            try {
+                chatContainer.removeChild(loadingDiv);
+            } catch (e) {
+                // Loading div might have been already removed
+            }
+            
+            // Add error message
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'chat-message bot-message';
+            errorMessageDiv.innerHTML = `
+                <div class="message-content text-danger">Error: ${error.message || "Could not get response. Please try again."}</div>
+                <div class="message-time small text-muted">${getCurrentTime()}</div>
+            `;
+            chatContainer.appendChild(errorMessageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Focus on input field
+            userQueryInput.focus();
+        });
+    });
+    
+    function getCurrentTime() {
+        const now = new Date();
+        return now.toLocaleString();
+    }
+    
+    function formatResponse(text) {
+        // Replace **text** with <strong>text</strong>
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Replace *text* with <em>text</em>
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Replace newlines with <br>
+        text = text.replace(/\n/g, '<br>');
+        
+        return text;
+    }
+});
+</script>
+{% endblock %}
